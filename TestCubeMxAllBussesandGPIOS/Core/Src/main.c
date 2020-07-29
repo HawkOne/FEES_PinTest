@@ -59,8 +59,8 @@ void MX_USB_HOST_Process(void);
 /* USER CODE BEGIN 0 */
 
 void pintoggle(char port , int pin){
-
 GPIO_TypeDef * PORT__BASE;
+uint16_t pin_number=0;
 
 switch (port){
 	case 'a': PORT__BASE = GPIOA;
@@ -73,14 +73,9 @@ switch (port){
 	break;
 	case 'e': PORT__BASE = GPIOE;
 	break;
-
 	default: PORT__BASE = GPIOA;
 	break;
 	}
-
-uint16_t pin_number=0;
-
-
 switch (pin){
 	case 0: pin_number = 0x0001;
 	break;
@@ -114,14 +109,11 @@ switch (pin){
 	break;
 	case 15: pin_number = 0x8000;
 	break;
-
 	}
-
 	HAL_GPIO_WritePin(PORT__BASE, pin_number, 1);
     HAL_Delay(10);
     HAL_GPIO_WritePin(PORT__BASE, pin_number, 0);
     HAL_Delay(10);
-
 }
 
 /* USER CODE END 0 */
@@ -156,125 +148,124 @@ int main(void)
   MX_GPIO_Init();
   MX_USB_HOST_Init();
   /* USER CODE BEGIN 2 */
-//  uint8_t BufferPrint[10]={"STOCAZZOO\n"};
 
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
-     {
-       /* USER CODE END WHILE */
-       MX_USB_HOST_Process();
+  {
+	/* USER CODE END WHILE */
+    MX_USB_HOST_Process();
 
-       HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, 1);
-       HAL_Delay(200);
-       HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, 0);
-       HAL_Delay(200);
-
-
-       // PWM_ CONTROL
-       pintoggle('c',8);  // PWM_HEATER - BATTERY
-
-       pintoggle('a',0);  // PWM_HEATER - BATTERY
-       pintoggle('a',1);  // PWM_HEATER - BATTERY
-       pintoggle('a',2);  // PWM_HEATER - BATTERY
+    HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, 1);
+    HAL_Delay(10);
+    HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, 0);
+    HAL_Delay(10);
 
 
+         // PWM_ CONTROL
+    pintoggle('c',8);  // PWM_HEATER - BATTERY
 
-       // GPIO DI DIREZIONE
-       pintoggle('e',7);	// Dir_X
-       pintoggle('e',8);	// Dir_Y
-       pintoggle('e',9);	// Dir_Z
+    pintoggle('a',0);  // PWM_HEATER - BATTERY
+    pintoggle('a',1);  // PWM_HEATER - BATTERY
+    pintoggle('a',2);  // PWM_HEATER - BATTERY
 
+         // GPIO DI DIREZIONE
+    pintoggle('e',7);	// Dir_X
+    pintoggle('e',8);	// Dir_Y
+    pintoggle('e',9);	// Dir_Z
 
-       //GPIO DI CONTROLLO
-       pintoggle('b',5);	//
-       pintoggle('d',12); 	//
-       pintoggle('e',0);	//
-       pintoggle('e',1);	//
-       pintoggle('e',3);	//
-       pintoggle('e',2);	//
-       pintoggle('e',6);	//
-       pintoggle('b',0);	//
+    	//GPIO DI CONTROLLO
+    pintoggle('b',5);	//
+    pintoggle('d',12); //
+    pintoggle('e',0);	//
+    pintoggle('e',1);	//
+    pintoggle('e',3);	//
+    pintoggle('e',2);	//
+    pintoggle('e',6);	//
+    pintoggle('b',0);	//
 
-       // GPIO DI DIREZIONE
-       pintoggle('b',1);	// EX_GPIO1
-       pintoggle('b',12);	// EX_GPIO2
-       pintoggle('a',3);	// EX_GPIO3
-       pintoggle('a',10);	// EX_GPIO4
-
-
-
-       //CS_SPI_SENSORI
-       pintoggle('e',5);  	//
-       pintoggle('e',4);  	//
-       pintoggle('a',4);	//
-       pintoggle('e',11);	//
-       pintoggle('e',13);	//
-       pintoggle('e',12);	//
-       pintoggle('c',9);  	//
-       pintoggle('d',10);	//
-       pintoggle('d',11);	//
-       pintoggle('c',4);  	//
-       pintoggle('c',5);   	//
-       pintoggle('e',10);  	//
-       pintoggle('d',14);  	//
+         // GPIO DI DIREZIONE
+    pintoggle('b',1);	// EX_GPIO1
+    pintoggle('b',12);	// EX_GPIO2
+    pintoggle('a',3);	// EX_GPIO3
+    pintoggle('a',10);	// EX_GPIO4
 
 
+         //CS_SPI_SENSORI
+    pintoggle('e',5);  	//
+    pintoggle('e',4);  	//
+    pintoggle('a',4);	//
+    pintoggle('e',11);	//
+    pintoggle('e',13);	//
+    pintoggle('e',12);	//
+    pintoggle('c',9);  	//
+    pintoggle('d',10);	//
+    pintoggle('d',11);	//
+    pintoggle('c',4);  	//
+    pintoggle('c',5);   	//
+    pintoggle('e',10);  	//
+    pintoggle('d',14);  	//
+
+
+    	// Communication busses pins
+         	   	   // UART _ BUS
+    pintoggle('b',6);  // UART_1_TX	GPS
+    pintoggle('b',7);  // UART_1_RX
+
+    pintoggle('d',5);  // UART_2_TX	SBD
+    pintoggle('d',6);  // UART_2_RX
+
+    pintoggle('d',8);  // UART_3_TX	CONSOLE SERIALE
+    pintoggle('d',9);  // UART_3_RX
+
+    pintoggle('c',6);  // UART_6_TX	SDR
+    pintoggle('c',7);  // UART_6_RX
+
+    		// SPI  BUSSES
+    			// SPI_1
+    pintoggle('a',6);  // SPI_1_MISO
+    pintoggle('a',7);  // SPI_1_MOSI
+    pintoggle('a',5);  // SPI_1_SCK
+    			// SPI_2
+    pintoggle('b',14);  // SPI_2_MISO
+    pintoggle('b',15);  // SPI_2_MOSI
+    pintoggle('b',13);  // SPI_2_SCK
+    			// SPI_3
+    pintoggle('c',11);  // SPI_3_MISO
+    pintoggle('c',12);  // SPI_3_MOSI
+    pintoggle('c',10);  // SPI_3_SCK
+
+
+    		// I2C  BUSSES
+    			// I2C_1
+    pintoggle('b',10);  // SCL
+    pintoggle('b',11);  // SDA
+    			// I2C_2
+    pintoggle('b',8);  // SCL2
+    pintoggle('b',9);  // SDA2
 
 
 
-       // Communication busses pins
-       	   	   // UART _ BUS
-       pintoggle('b',6);  // UART_1_TX	GPS
-       pintoggle('b',7);  // UART_1_RX
+    //  uint8_t BufferPrint[10]={"STOCAZZOO\n"};
 
-       pintoggle('d',5);  // UART_2_TX	SBD
-       pintoggle('d',6);  // UART_2_RX
+     //    HAL_UART_Transmit(&huart1, *BufferPrint, 10, 100);
+     //    HAL_Delay(200);
+     //
+     //    HAL_UART_Transmit(&huart2, *BufferPrint, 10, 100);
+     //    HAL_Delay(200);
+     //
+     //	HAL_UART_Transmit(&huart3, *BufferPrint, 10, 100);
+     //    HAL_Delay(200);
+     //
+     //    HAL_UART_Transmit(&huart6, *BufferPrint, 10, 100);
+     //    HAL_Delay(200);
 
-       pintoggle('d',8);  // UART_3_TX	CONSOLE SERIALE
-       pintoggle('d',9);  // UART_3_RX
-
-       pintoggle('c',6);  // UART_6_TX	SDR
-       pintoggle('c',7);  // UART_6_RX
-
-   	   	   	   // SPI  BUSSES
-       	   	   	   // SPI_1
-       pintoggle('a',6);  // SPI_1_MISO
-       pintoggle('a',7);  // SPI_1_MOSI
-       pintoggle('a',5);  // SPI_1_SCK
-  	   	   	   	   // SPI_2
-       pintoggle('b',14);  // SPI_2_MISO
-       pintoggle('b',15);  // SPI_2_MOSI
-       pintoggle('b',13);  // SPI_2_SCK
-       	   	   	   // SPI_3
-       pintoggle('c',11);  // SPI_3_MISO
-       pintoggle('c',12);  // SPI_3_MOSI
-       pintoggle('c',10);  // SPI_3_SCK
-
-
-
-
-
-
-   //    HAL_UART_Transmit(&huart1, *BufferPrint, 10, 100);
-   //    HAL_Delay(200);
-   //
-   //    HAL_UART_Transmit(&huart2, *BufferPrint, 10, 100);
-   //    HAL_Delay(200);
-   //
-   //	HAL_UART_Transmit(&huart3, *BufferPrint, 10, 100);
-   //    HAL_Delay(200);
-   //
-   //    HAL_UART_Transmit(&huart6, *BufferPrint, 10, 100);
-   //    HAL_Delay(200);
-
-
-       /* USER CODE BEGIN 3 */
-     }
-     /* USER CODE END 3 */
-   }
+    	/* USER CODE BEGIN 3 */
+    }
+  		/* USER CODE END 3 */
+}
 
 /**
   * @brief System Clock Configuration
@@ -366,7 +357,7 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOD, GPIO_PIN_8|GPIO_PIN_9|GPIO_PIN_10|GPIO_PIN_11
                           |LD4_Pin|LD3_Pin|LD5_Pin|LD6_Pin
                           |GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3
-                          |GPIO_PIN_4|GPIO_PIN_6|GPIO_PIN_7, GPIO_PIN_RESET);
+                          |GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7, GPIO_PIN_RESET);
 
   /*Configure GPIO pins : PE2 PE3 PE4 PE5
                            PE6 PE7 PE8 PE9
@@ -427,21 +418,15 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pins : PD8 PD9 PD10 PD11
                            LD4_Pin LD3_Pin LD5_Pin LD6_Pin
                            PD0 PD1 PD2 PD3
-                           PD4 PD6 PD7 */
+                           PD4 PD5 PD6 PD7 */
   GPIO_InitStruct.Pin = GPIO_PIN_8|GPIO_PIN_9|GPIO_PIN_10|GPIO_PIN_11
                           |LD4_Pin|LD3_Pin|LD5_Pin|LD6_Pin
                           |GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3
-                          |GPIO_PIN_4|GPIO_PIN_6|GPIO_PIN_7;
+                          |GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : OTG_FS_OverCurrent_Pin */
-  GPIO_InitStruct.Pin = OTG_FS_OverCurrent_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(OTG_FS_OverCurrent_GPIO_Port, &GPIO_InitStruct);
 
 }
 
