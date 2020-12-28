@@ -17,9 +17,44 @@
   ******************************************************************************
   */
 /* USER CODE END Header */
+
+
+
+//------- COMPILING SETTINGS ----------//
+
+//#define WINDOWS
+//#define LINUX
+
+//#define ARDUPILOT
+//#define FREERTOS
+//#define CHIBIOS
+
+#define BAREMETAL  //ST's HAL LIBRARIES
+#define FREERTOS
+
+//#define UNIT_TESTING
+
+//------- ------- ------- ------ ----- //
+
+
+
+
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "cmsis_os.h"
+
+//FEES RELATED INCLUDES
+
+#include <stdlib.h>
+#include <sys/types.h>
+#include <time.h>
+
+#include <limits.h>
+
+//#include "1_HardwareAndDrivers.hpp"
+
+
+
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -34,6 +69,12 @@ typedef StaticTask_t osStaticThreadDef_t;
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+void Hardware_Watchdog_Refresh(){
+    HAL_GPIO_WritePin(GPIOB,GPIO_PIN_5, 1);
+    osDelay(100);
+    HAL_GPIO_WritePin(GPIOB,GPIO_PIN_5, 0);
+    osDelay(100);
+}
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -175,275 +216,79 @@ void Task06(void *argument);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-void pintoggle(char port , int pin){
-	GPIO_TypeDef * PORT__BASE;
-	uint16_t pin_number=0;
+void FEES_print(int a , uint8_t PrintBuffer[] ){
 
-	switch (port){
-		case 'a': PORT__BASE = GPIOA;
-		break;
-		case 'b': PORT__BASE = GPIOB;
-		break;
-		case 'c': PORT__BASE = GPIOC;
-		break;
-		case 'd': PORT__BASE = GPIOD;
-		break;
-		case 'e': PORT__BASE = GPIOE;
-		break;
-		default: PORT__BASE = GPIOA;
-		break;
-		}
-	switch (pin){
-		case 0: pin_number = 0x0001;
-		break;
-		case 1: pin_number = 0x0002;
-		break;
-		case 2: pin_number = 0x0004;
-		break;
-		case 3: pin_number = 0x0008;
-		break;
-		case 4: pin_number = 0x0010;
-		break;
-		case 5: pin_number = 0x0020;
-		break;
-		case 6: pin_number = 0x0040;
-		break;
-		case 7: pin_number = 0x0080;
-		break;
-		case 8: pin_number = 0x0100;
-		break;
-		case 9: pin_number = 0x0200;
-		break;
-		case 10: pin_number = 0x0400;
-		break;
-		case 11: pin_number = 0x0800;
-		break;
-		case 12: pin_number = 0x1000;
-		break;
-		case 13: pin_number = 0x2000;
-		break;
-		case 14: pin_number = 0x4000;
-		break;
-		case 15: pin_number = 0x8000;
-		break;
-	}
-	HAL_GPIO_WritePin(PORT__BASE, pin_number, 1);
-	osDelay(10);
-    HAL_GPIO_WritePin(PORT__BASE, pin_number, 0);
-    osDelay(10);
+  #ifdef WINDOWS
+  cout << PrintBuffer;
+  #endif // WINDOWS
+
+  #ifdef FREERTOS
+	switch(a){
+        case 1:  HAL_UART_Transmit(&huart1,(uint8_t *) PrintBuffer, strlen(PrintBuffer), 100);
+        break;
+        case 2:  HAL_UART_Transmit(&huart2,(uint8_t *) PrintBuffer, strlen(PrintBuffer), 100);
+        break;
+        case 3:  HAL_UART_Transmit(&huart3,(uint8_t *) PrintBuffer, strlen(PrintBuffer), 100);
+        break;
+        case 4:  HAL_UART_Transmit(&huart6,(uint8_t *) PrintBuffer, strlen(PrintBuffer), 100);
+        break;
+        case 6:  HAL_UART_Transmit(&huart6,(uint8_t *) PrintBuffer, strlen(PrintBuffer), 100);
+        break;
+      default:   HAL_UART_Transmit(&huart2,(uint8_t *) PrintBuffer, strlen(PrintBuffer), 100);
+        break;
+    }
+    #endif // FREERTOS
 }
 
-void Hardware_Watchdog_Refresh(){
-	  HAL_GPIO_WritePin(GPIOB,GPIO_PIN_5, 1);
-	  osDelay(100);
-	  HAL_GPIO_WritePin(GPIOB,GPIO_PIN_5, 0);
-	  osDelay(100);
+void FEES_scan(int a, char ScanBuffer[] ){
+
+	switch(a){
+        case 1:  HAL_UART_Receive_DMA(&huart1, ScanBuffer, strlen(ScanBuffer));
+        break;
+        case 2:  HAL_UART_Receive_DMA(&huart2, ScanBuffer, strlen(ScanBuffer));
+        break;
+        case 3:  HAL_UART_Receive_DMA(&huart3, ScanBuffer, strlen(ScanBuffer));
+        break;
+        case 4:  HAL_UART_Receive_DMA(&huart6, ScanBuffer, strlen(ScanBuffer));
+        break;
+        case 6:  HAL_UART_Receive_DMA(&huart6, ScanBuffer, strlen(ScanBuffer));
+
+      default:   HAL_UART_Receive_DMA(&huart2, ScanBuffer, strlen(ScanBuffer));
+        break;
+    }
 }
 
-void TestPins(){
+#define GETCHAR_PROTOTYPE int __io_getchar (void)
 
-      // GPIO DI DIREZIONE
-	 pintoggle('b',1);	// EX_GPIO1
- 	 pintoggle('b',12);	// EX_GPIO2
- 	 pintoggle('a',3);	// EX_GPIO3
- 	 pintoggle('a',10);	// EX_GPIO4
-
-      	  // PWM_ CONTROL
-    pintoggle('c',8);  // PWM_HEATER - BATTERY
-
-    pintoggle('a',0);  // PWM_HEATER - BATTERY
-    pintoggle('a',1);  // PWM_HEATER - BATTERY
-    pintoggle('a',2);  // PWM_HEATER - BATTERY
-
-         // GPIO DI DIREZIONE
-    pintoggle('e',7);	// Dir_X
-    pintoggle('e',8);	// Dir_Y
-    pintoggle('e',9);	// Dir_Z
-
-    	//GPIO DI CONTROLLO
-    //    pintoggle('b',5);	// WATCHDOG
-    pintoggle('d',12); 	// TMTC_WD
-    pintoggle('e',0);	// ANA_PWR_ON
-    pintoggle('e',1);	// RAD_PWR_ON
-    pintoggle('e',3);	// SBD_PWR_ON
-    pintoggle('e',2);	// GPS_PWR_ON
-    pintoggle('e',6);	// RSBY_PWR_ON
-    pintoggle('b',0);	// RSBY_KEEP_EN
-
-
-         //CS_SPI_SENSORI
-    pintoggle('e',4);  	// CS_NAND
-    pintoggle('e',5);  	// CS_LORA
-    pintoggle('a',4);	// CS_RADFET
-    pintoggle('e',11);	// EN_ADC1
-    pintoggle('e',13);	// EN_ADC2
-    pintoggle('e',12);	// EN_ADC3
-    pintoggle('c',9);  	// EXT_SPI_EN
-    pintoggle('d',10);	// CS_EEPROM
-    pintoggle('d',11);	// CS_FRAM
-    pintoggle('c',4);  	// CS_PSD1_AMP
-    pintoggle('c',5);   // CS_PSD2_AMP
-    pintoggle('e',10);  // CS_GYRO
-    pintoggle('d',14);  // CS_GYRO2
-
-    osDelay(250);
-}
-
-void TestBusses(){
-		// TEST SERIALE
-	uint8_t BufferPrint1[20]={"Seriale UNO 1!\n"};
-	uint8_t BufferPrint2[20]={"Seriale DUE 2!\n"};
-	uint8_t BufferPrint3[20]={"Seriale TRE 3!\n"};
-	uint8_t BufferPrint6[20]={"Seriale SEI 6!\n"};
-
-	HAL_UART_Transmit(&huart1, BufferPrint1, 20, 100);
-	HAL_UART_Transmit(&huart2, BufferPrint2, 20, 100);
-	HAL_UART_Transmit(&huart3, BufferPrint3, 20, 100);
-	HAL_UART_Transmit(&huart6, BufferPrint6, 20, 100);
-    osDelay(1);
-
-    uint8_t Buffer[15]={ 0xFF, 0xFF, 0xFF,0x00,0x00,0xFF,0xFF,0x00,0xFF,0x00, 0x55, 0xAA, 0x80, 0x80, 0xAA};
-
-    	// TEST I2C Busses
-    HAL_I2C_Init(&hi2c1);
-    HAL_I2C_Init(&hi2c2);
-
-    HAL_I2C_Master_Transmit(&hi2c1, 0x11, Buffer, 15, 100);
-    HAL_I2C_Master_Transmit(&hi2c2, 0x22, Buffer, 15, 100);
-    osDelay(1);
-
-        // TEST SPI
-    HAL_SPI_Init(&hspi1);
-    HAL_SPI_Init(&hspi2);
-    HAL_SPI_Init(&hspi3);
-
-    HAL_SPI_Transmit(&hspi1, Buffer, 10, 100);
-    HAL_SPI_Transmit(&hspi2, Buffer, 10, 100);
-    HAL_SPI_Transmit(&hspi3, Buffer, 10, 100);
-    osDelay(1);
+GETCHAR_PROTOTYPE
+{
+  char * getbuffer = 0;
+  __HAL_UART_CLEAR_OREFLAG(&huart1);
+  HAL_UART_Receive(&huart1, getbuffer, 1, 100);
+//  HAL_UART_Transmit(&huart1, getbuffer, 1, 100);
+  return &getbuffer;
 }
 
 
-void PWM_STARTERS_T2_3_VariablePWM(){
-	int i=1;
-	HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_1);
-	HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_2);
-	HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
+int Serial_Scanf(char *ptr, int len)
+{
 
-	// variable PWM in TIM2_Chann3
+  int DataIdx = 0;
+  uint8_t thechar;
+  thechar= ' ';
+  while(thechar!= '\n' && thechar != '\r' && DataIdx<len)
+  { thechar = __io_getchar();
 
-	/* Infinite loop */
-	for(;;)
-	{
-		osDelay(1);
-		TIM_OC_InitTypeDef sConfigOC = {0};
-		sConfigOC.OCMode = TIM_OCMODE_PWM1;
-		if(i==101){i=1;}
-		sConfigOC.Pulse = i-1;
-		sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
-		sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
-		if (HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_3) != HAL_OK){ Error_Handler();} // variable PWM in TIM2_Chann3
-		i=i+10;
-		HAL_TIM_PWM_Start(&htim2, TIM_CHANNEL_3);
-		osDelay(1);
-
-		/*osDelay(100);
-		HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_3);
-		osDelay(100);
-
-		  htim3.Init.Period = 0xFFFF; //
-
-		  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
-		  osDelay(100);
-		  HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_3);
-		  osDelay(100);
-
-		  htim3.Init.Period = 0x1; //
-
-		  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
-		  osDelay(250);
-		  HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_3);
-		  osDelay(1000);*/
-	}
+  if ( thechar  >= 0xFF){
+    FEES_print(1, "\n\r  !!! Please enter a valid ASCII character \n");
+    return 0xFF;}
+  *ptr++ =thechar;
+  DataIdx+=1;
+  }
+  return DataIdx;
 }
 
-void Crescendo_PWM_BATTERY(){
-	  int i=1;
-	  while(i<11){
-		  TIM_MasterConfigTypeDef sMasterConfig = {0};
-		  TIM_OC_InitTypeDef sConfigOC = {0};
-		  htim3.Instance = TIM3;
-		  if(i==1){htim3.Init.Prescaler  = 160-1;}
-		  if(i==2){htim3.Init.Prescaler  = 150-1;}
-		  if(i==3){htim3.Init.Prescaler  = 140-1;}
-		  if(i==4){htim3.Init.Prescaler  = 130-1;}
-		  if(i==5){htim3.Init.Prescaler  = 120-1;}
-		  if(i==6){htim3.Init.Prescaler  = 110-1;}
-		  if(i==7){htim3.Init.Prescaler  = 100-1;}
-		  if(i==8){htim3.Init.Prescaler  = 90-1;}
-		  if(i==9){htim3.Init.Prescaler  = 80-1;}
-		  if(i==10){htim3.Init.Prescaler = 70-1;}
 
-		  htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
-		  htim3.Init.Period = 100-1;
-		  htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-		  htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
-		  if (HAL_TIM_PWM_Init(&htim3) != HAL_OK){Error_Handler();}
-
-		  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
-		  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-		  if (HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig) != HAL_OK){ Error_Handler();}
-
-		  sConfigOC.OCMode = TIM_OCMODE_PWM1;
-		  sConfigOC.Pulse = 50-1;
-		  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
-		  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
-		  if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_3) != HAL_OK){ Error_Handler();}
-		  i++;
-		  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
-		  osDelay(100);
-		  }
-	  HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_3);
-}
-
-void Diminuendo_PWM_BATTERY(){
-	  int i=0;
-	  while(i<11){
-		  TIM_MasterConfigTypeDef sMasterConfig = {0};
-		  TIM_OC_InitTypeDef sConfigOC = {0};
-		  htim3.Instance = TIM3;
-		  if(i==1){htim3.Init.Prescaler  = 70-1;}
-		  if(i==2){htim3.Init.Prescaler  = 80-1;}
-		  if(i==3){htim3.Init.Prescaler  = 90-1;}
-		  if(i==4){htim3.Init.Prescaler  = 100-1;}
-		  if(i==5){htim3.Init.Prescaler  = 110-1;}
-		  if(i==6){htim3.Init.Prescaler  = 120-1;}
-		  if(i==7){htim3.Init.Prescaler  = 130-1;}
-		  if(i==8){htim3.Init.Prescaler  = 140-1;}
-		  if(i==9){htim3.Init.Prescaler  = 150-1;}
-		  if(i==10){htim3.Init.Prescaler = 160-1;}
-
-		  htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
-		  htim3.Init.Period = 100-1;
-		  htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-		  htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
-		  if (HAL_TIM_PWM_Init(&htim3) != HAL_OK){Error_Handler();}
-
-		  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
-		  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-		  if (HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig) != HAL_OK){ Error_Handler();}
-
-		  sConfigOC.OCMode = TIM_OCMODE_PWM1;
-		  sConfigOC.Pulse = 50-1;
-		  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
-		  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
-		  if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_3) != HAL_OK){ Error_Handler();}
-		  i++;
-		  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_3);
-		  osDelay(100);
-		  }
-	  HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_3);
-}
 
 /* USER CODE END 0 */
 
@@ -1236,7 +1081,7 @@ void StartDefaultTask(void *argument)
   for(;;)
   {
 	  Hardware_Watchdog_Refresh();
-	  //TestPins();
+	  // TestPins();
 	  // pintoggle('d',15);  	// CS_NAND - Led BLU
 	  //PWM_STARTERS_T2_3_VariablePWM();
 
@@ -1258,7 +1103,44 @@ void Task01(void *argument)
   /* Infinite loop */
   for(;;)
   {
-	  osDelay(1);
+	  //Main_FEES();
+
+
+	  FEES_print(1 , "CIAO , che dici? si o no? \n " );
+	  char scanbuffer[5];
+
+	  FEES_scan( 1, scanbuffer);
+
+	  if(scanbuffer[0]=='y'){
+		  FEES_print(1 , "you said yes! \n" );
+	  }
+	  if(scanbuffer[0]=='n'){
+		  FEES_print(1 , "you said no! \n" );
+	  }
+
+
+/*
+
+	  FEES_print(1 , "\r    __________________________________________________  \n" );
+	  FEES_print(1 , "\r   |                                                  | \n" );
+	  FEES_print(1 , "\r   |                                                  | \n" );
+	  FEES_print(1 , "\r   |                                                  | \n" );
+	  FEES_print(1 , "\r   |                                                  | \n" );
+	  FEES_print(1 , "\r   |__________________________________________________| \n" );
+
+*/
+
+
+/*
+
+	  FEES_print(1 , "1 \n" );
+	  FEES_print(2 , "2 \n" );
+	  FEES_print(3 , "3 \n" );
+	  FEES_print(6 , "6 \n" );
+
+*/
+
+	  osDelay(1000);
   }
   /* USER CODE END Task01 */
 }
